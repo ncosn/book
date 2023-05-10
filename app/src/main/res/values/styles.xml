@@ -1,0 +1,17 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">#afb4db</item>
+        <item name="colorPrimaryDark">#9b95c9</item>
+        <item name="colorAccent">#6950a1</item>
+    </style>
+
+    <style name="sp_level">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+</resources>

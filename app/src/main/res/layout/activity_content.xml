@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/bg"
+    tools:context=".ContentActivity">
+
+    <TextView
+        android:clickable="true"
+        android:id="@+id/tv_sort"
+        android:paddingHorizontal="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:gravity="center"
+        android:text="查看错题"
+        android:textSize="18sp"
+        android:textColor="@color/brown"/>
+    <TextView
+        android:clickable="true"
+        android:id="@+id/tv_examine"
+        android:layout_marginTop="30dp"
+        android:paddingHorizontal="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:gravity="center"
+        android:text="试卷测评"
+        android:textSize="18sp"
+        android:textColor="@color/brown"/>
+    <TextView
+        android:clickable="true"
+        android:id="@+id/tv_setting"
+        android:layout_marginTop="30dp"
+        android:paddingHorizontal="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:gravity="center"
+        android:text="个人信息"
+        android:textSize="18sp"
+        android:textColor="@color/brown"/>
+
+</LinearLayout>

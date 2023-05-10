@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true"/>
+</network-security-config>
+
+    <!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<network-security-config>-->
+<!--    <base-config  cleartextTrafficPermitted="true">-->
+<!--        <trust-anchors>-->
+<!--            <certificates src="system"/>-->
+<!--        </trust-anchors>-->
+<!--    </base-config>-->
+<!--    <domain-config>-->
+<!--        <domain includeSubdomains="true">www.textin.com</domain>-->
+<!--&lt;!&ndash;        <trust-anchors>&ndash;&gt;-->
+<!--&lt;!&ndash;            <certificates src="@raw/srca" overridePins="true"/>&ndash;&gt;-->
+<!--&lt;!&ndash;        </trust-anchors>&ndash;&gt;-->
+<!--&lt;!&ndash;        //cleartextTrafficPermitted属性不详，这里是参考官网添加的&ndash;&gt;-->
+<!--    </domain-config>-->
+<!--</network-security-config>-->

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/bg"
+    tools:context="cn.njupt.iot.b19060226.book.RegisterActivity">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="用户注册"
+        android:gravity="center"
+        android:layout_marginBottom="20dp"
+        android:textColor="@color/brown"
+        android:textSize="30sp"/>
+
+    <EditText
+        android:id="@+id/et_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:hint="请输入用户名" />
+
+    <EditText
+        android:layout_marginTop="10dp"
+        android:id="@+id/et_password"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPassword"
+        android:hint="请输入密码"/>
+
+    <EditText
+        android:id="@+id/et_education"
+        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="请输入学历" />
+
+    <EditText
+        android:id="@+id/et_phone"
+        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="请输入手机号" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:paddingHorizontal="20dp"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <Button
+            android:id="@+id/bt_back"
+            android:layout_width="130dp"
+            android:layout_height="50dp"
+            android:text="返 回"
+            android:background="@drawable/border_button_white"
+            android:textColor="@color/brown"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/bt_register"
+            android:layout_width="130dp"
+            android:layout_height="50dp"
+            android:text="注 册"
+            android:background="@drawable/border_button_brown"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:layout_marginStart="26dp" />
+    </LinearLayout>
+</LinearLayout>
