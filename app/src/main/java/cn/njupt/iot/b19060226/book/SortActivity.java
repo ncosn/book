@@ -1,7 +1,7 @@
 package cn.njupt.iot.b19060226.book;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -9,14 +9,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,22 +22,17 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.MediaStore;
-import android.text.Editable;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.style.ImageSpan;
-import android.util.Base64;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.RelativeLayout;
-import android.widget.Spinner;
 import android.widget.Toast;
+
+import com.baidu.ocr.sdk.OCR;
+import com.baidu.ocr.sdk.OnResultListener;
+import com.baidu.ocr.sdk.exception.OCRError;
+import com.baidu.ocr.sdk.model.AccessToken;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,10 +40,8 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -66,7 +56,8 @@ public class SortActivity extends AppCompatActivity {
     private static final int REQUEST_CROP = 1; //裁剪
     private static final int OPEN_GALLERY = 2; //相册
     private static final int REQUEST_PERMISSION = 100;
-    private boolean hasPermission = false;
+    public boolean hasPermission = false;
+    public boolean hasGotToken = false;
     private File imgFile;// 拍照保存的图片文件
     private Uri imgUri; // 拍照时返回的uri
     private Uri mCutUri;// 图片裁剪时返回的uri
@@ -74,16 +65,17 @@ public class SortActivity extends AppCompatActivity {
 //    private String result;//返回的字符串数据
     private String imageBase64;
     private Handler handler;
-    Dialog dialog;
+//    Dialog dialog;
+    MyDialog myDialog;
     EditText etQuestion, etAnswer;
-    Integer id;
-    private int type = 1;
+    Integer userId;
+    public int type = 1;
 
     RoomDB database;
     RecyclerView recyclerView;
-    List<TestData> dataList = new ArrayList<>();
+    public List<TestData> dataList = new ArrayList<>();
     LinearLayoutManager linearLayoutManager;
-    TestAdapter testAdapter;
+    public TestAdapter testAdapter;
 
     Button btAdd;
     private static String TAG = "SortActivity";
@@ -100,13 +92,14 @@ public class SortActivity extends AppCompatActivity {
             public void handleMessage(@NonNull Message msg){
                 //得到的result为base64字符串，转化为bitmap
                 Bitmap bm = ImageUtils.base64ToBitmap(imageBase64);
-                //保存到本地
-                String time = new SimpleDateFormat("yyyyMMddHHmmss", Locale.CHINA).format(new Date());
-                String fileName = "photo_" + time;
-                File mClearFile = new File(Environment.getExternalStorageDirectory() + "/take_photo/", fileName + ".jpeg");
-                if (!mClearFile.getParentFile().exists()) {
-                    mClearFile.getParentFile().mkdirs();
-                }
+//                //保存到本地
+//                String time = new SimpleDateFormat("yyyyMMddHHmmss", Locale.CHINA).format(new Date());
+//                String fileName = "photo_" + time;
+//                File mClearFile = new File(Environment.getExternalStorageDirectory() + "/take_photo/", fileName + ".jpeg");
+//                if (!mClearFile.getParentFile().exists()) {
+//                    mClearFile.getParentFile().mkdirs();
+//                }
+                File mClearFile = FileUtils.getSaveFile();
                 mClearUri = Uri.fromFile(mClearFile);
                 Log.d(TAG, "handleMessage: mClearUri"+mClearUri);
                 try {
@@ -126,54 +119,84 @@ public class SortActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 //清除手写图片的path
-                insertImg(mClearUri.getPath());
+                myDialog.insertImg(mClearUri.getPath());
             }
         };
     }
 
     public void init() {
+//        initAccessTokenLicenseFile();//证书
         Intent intent = getIntent();
-        id = intent.getIntExtra("user_id",0);
+        userId = intent.getIntExtra("user_id",0);
 
         recyclerView = findViewById(R.id.recyclerview);
         btAdd = findViewById(R.id.bt_add);
 
         database = RoomDB.getInstance(this);
-        dataList = database.testDao().getAl(id);
+        dataList = database.testDao().getAl(userId);
         linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
         testAdapter = new TestAdapter(SortActivity.this,dataList);
         recyclerView.setAdapter(testAdapter);
 
-        //dialog
-        dialog = new Dialog(SortActivity.this);
-        dialog.setContentView(R.layout.detail_test);
-        etQuestion = dialog.findViewById(R.id.et_question);
-        etAnswer = dialog.findViewById(R.id.et_answer);
+        WindowManager wm = this.getWindowManager();
+        int width = wm.getDefaultDisplay().getWidth();
+        int height = wm.getDefaultDisplay().getHeight();
+//        //dialog
+//        dialog = new Dialog(SortActivity.this);
+//        dialog.setContentView(R.layout.detail_test);
+//        etQuestion = dialog.findViewById(R.id.et_question);
+//        etAnswer = dialog.findViewById(R.id.et_answer);
 
         //添加按钮
         btAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                myDialog = new MyDialog(SortActivity.this, userId, -1);
 
-                int width = getResources().getDisplayMetrics().widthPixels;
+//                int width = ScreenUtils.getScreenWidth(SortActivity.this);
                 //Initialize height
-                int height = getResources().getDisplayMetrics().heightPixels;
-                //Set layout
-                dialog.getWindow().setLayout(width,height);
-                //Show dialog
-                dialog.show();
+//                int height = ScreenUtils.getScreenHeight(SortActivity.this);
 
-                Spinner spLevel = dialog.findViewById(R.id.sp_level);
-                RadioGroup rgType = dialog.findViewById(R.id.rg_type);
-                RadioButton rbQuesiton = dialog.findViewById(R.id.rb_question);
-                RadioButton rbAnswer = dialog.findViewById(R.id.rb_answer);
-                RelativeLayout rlQuestion, rlAnswer;
-                rlQuestion = dialog.findViewById(R.id.rl_question);
-                rlAnswer = dialog.findViewById(R.id.rl_answer);
-                ImageView imClose = dialog.findViewById(R.id.im_close);
-                EditText etSubject;
-                etSubject = dialog.findViewById(R.id.et_subject);
+                //Show dialog
+                myDialog.show();
+
+                //Set layout
+                myDialog.getWindow().setLayout(width,height);
+
+                myDialog.setGalleryOnClickListener(new MyDialog.onGalleryOnClickListener() {
+                    @Override
+                    public void onGalleryClick() {
+                        checkPermissions();
+                        if (hasPermission) {
+                            openGallery();
+                        }
+                    }
+                });
+                myDialog.setCameraOnClickListener(new MyDialog.onCameraOnClickListener() {
+                    @Override
+                    public void onCameraClick() {
+                        checkPermissions();
+                        if (hasPermission) {
+                            takePhoto();
+                        }
+                    }
+                });
+                myDialog.setTypeInterface(new MyDialog.typeInterface() {
+                    @Override
+                    public void getType(int myType) {
+                        type = myType;
+                    }
+                });
+
+//                int width = getResources().getDisplayMetrics().widthPixels;
+//                //Initialize height
+//                int height = getResources().getDisplayMetrics().heightPixels;
+//                //Set layout
+//                dialog.getWindow().setLayout(width,height);
+//                //Show dialog
+//                dialog.show();
+//
 //                Spinner spLevel = dialog.findViewById(R.id.sp_level);
 //                RadioGroup rgType = dialog.findViewById(R.id.rg_type);
 //                RadioButton rbQuesiton = dialog.findViewById(R.id.rb_question);
@@ -181,82 +204,85 @@ public class SortActivity extends AppCompatActivity {
 //                RelativeLayout rlQuestion, rlAnswer;
 //                rlQuestion = dialog.findViewById(R.id.rl_question);
 //                rlAnswer = dialog.findViewById(R.id.rl_answer);
+//                ImageView imClose = dialog.findViewById(R.id.im_close);
+//                EditText etSubject;
+//                etSubject = dialog.findViewById(R.id.et_subject);
 //
-                ImageView ivGallery = dialog.findViewById(R.id.iv_gallery);
-                ImageView ivCamera = dialog.findViewById(R.id.iv_camera);
-
-                ivGallery.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        checkPermissions();
-                        if (hasPermission) {
-                            openGallery();
-                        }
-                    }
-                });
-                ivCamera.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        checkPermissions();
-                        if (hasPermission) {
-                            takePhoto();
-                        }
-                    }
-                });
-
-                rgType.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                        switch (i) {
-                            case R.id.rb_question:
-                                rlQuestion.setVisibility(View.VISIBLE);
-                                type = 1;
-                                break;
-                            case R.id.rb_answer:
-                                rlQuestion.setVisibility(View.GONE);
-                                type = 2;
-                                break;
-                        }
-                    }
-                });
-                imClose.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        dialog.dismiss();
-                    }
-                });
+//                ImageView ivGallery = dialog.findViewById(R.id.iv_gallery);
+//                ImageView ivCamera = dialog.findViewById(R.id.iv_camera);
+//
+//                ivGallery.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        checkPermissions();
+//                        if (hasPermission) {
+//                            openGallery();
+//                        }
+//                    }
+//                });
+//                ivCamera.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        checkPermissions();
+//                        if (hasPermission) {
+//                            takePhoto();
+//                        }
+//                    }
+//                });
+//
+//                rgType.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+//                    @Override
+//                    public void onCheckedChanged(RadioGroup radioGroup, int i) {
+//                        switch (i) {
+//                            case R.id.rb_question:
+//                                rlQuestion.setVisibility(View.VISIBLE);
+//                                type = 1;
+//                                break;
+//                            case R.id.rb_answer:
+//                                rlQuestion.setVisibility(View.GONE);
+//                                type = 2;
+//                                break;
+//                        }
+//                    }
+//                });
+//                imClose.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        dialog.dismiss();
+//                    }
+//                });
 
             }
         });
 
-        //编辑框滑动事件
-        etQuestion.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                //触摸的是EditText并且当前EditText可以滚动则将事件交给EditText处理；否则将事件交由其父类处理
-                if ((view.getId() == R.id.et_question)) {
-                    //垂直方向上可以滚动
-                    if(etQuestion.canScrollVertically(-1) || etQuestion.canScrollVertically(0)) {
-                        //请求父控件不拦截滑动事件
-                        view.getParent().requestDisallowInterceptTouchEvent(true);
-                        if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                            view.getParent().requestDisallowInterceptTouchEvent(false);
-                        }
-                    }
-                }
-                return false;
-            }
-        });
+//        //编辑框滑动事件
+//        etQuestion.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View view, MotionEvent motionEvent) {
+//                //触摸的是EditText并且当前EditText可以滚动则将事件交给EditText处理；否则将事件交由其父类处理
+//                if ((view.getId() == R.id.et_question)) {
+//                    //垂直方向上可以滚动
+//                    if(etQuestion.canScrollVertically(-1) || etQuestion.canScrollVertically(0)) {
+//                        //请求父控件不拦截滑动事件
+//                        view.getParent().requestDisallowInterceptTouchEvent(true);
+//                        if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+//                            view.getParent().requestDisallowInterceptTouchEvent(false);
+//                        }
+//                    }
+//                }
+//                return false;
+//            }
+//        });
 
     }
 
-    private void openGallery() {
+    public void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
         startActivityForResult(intent, OPEN_GALLERY);
     }
 
-    private void takePhoto(){
+    public void takePhoto(){
         // 要保存的文件名
         String time = new SimpleDateFormat("yyyyMMddHHmmss", Locale.CHINA).format(new Date());
         String fileName = "photo_" + time;
@@ -352,13 +378,46 @@ public class SortActivity extends AppCompatActivity {
                 // 裁剪后设置图片
                 case REQUEST_CROP:
                     try{
-                        // 获得图片的uri
-//                        Uri originalUri = data.getData();
                         Log.d(TAG,"onActivityResult:REQUEST_CROP:mCutUri:"+mCutUri);
                         String path = mCutUri.getPath();
                         Log.d(TAG, "onActivityResult:REQUEST_CROP:path:"+path);
-                        insertImg(path);
-                        clearHandwriting(mCutUri);
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(SortActivity.this);
+                        builder.setMessage("是否图片去除手写？");
+                        builder.setPositiveButton("是", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //确定删除
+                                try {
+                                    clearHandwriting(mCutUri);
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                        builder.setNegativeButton("否", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //取消
+                                myDialog.insertImg(path);
+                            }
+                        });
+                        builder.show();
+//
+//                        switch (type) {
+//                            //题目去手写
+//                            case 1:
+//                                clearHandwriting(mCutUri);
+//                                break;
+//                            case 2:
+//                                myDialog.insertImg(path);
+//                                break;
+//                            default:
+//                                break;
+//                        }
+
+//                        myDialog.insertImg(path);
+//                        clearHandwriting(mCutUri);
                     }catch (Exception e){
                         e.printStackTrace();
                         Toast.makeText(SortActivity.this,"图片插入失败",Toast.LENGTH_SHORT).show();
@@ -366,8 +425,6 @@ public class SortActivity extends AppCompatActivity {
                     break;
 
                 case OPEN_GALLERY:
-         /*   String adb=imgUri.toString();
-            Log.d("MainActivity","s输出为："+adb);*/
 //                Log.d(TAG,"输出为："+requestCode);
 //
 //                if (resultCode == Activity.RESULT_OK){
@@ -388,74 +445,74 @@ public class SortActivity extends AppCompatActivity {
         }
     }
 
-    private void insertImg(String path){
-        Log.e(TAG, "insertImg:" + path);
-        String tagPath = "<img src=\""+path+"\"/>";//为图片路径加上<img>标签
-        Bitmap bitmap = BitmapFactory.decodeFile(path);
-        if(bitmap != null){
-            SpannableString ss = getBitmapMime(path, tagPath);
-            insertPhotoToEditText(ss);
-            etQuestion.append("\n");
-            Log.e(TAG, etQuestion.getText().toString());
-
-        }else{
-            //Log.d("YYPT_Insert", "tagPath: "+tagPath);
-            Toast.makeText(SortActivity.this,"插入失败，无读写存储权限，请到权限中心开启",Toast.LENGTH_LONG).show();
-        }
-    }
-    //将图片插入到EditText中
-    private void insertPhotoToEditText(SpannableString ss){
-        Editable et;
-        int start;
-        switch (type) {
-            case 1:
-                et = etQuestion.getText();
-                start = etQuestion.getSelectionStart();
-                et.insert(start,ss);
-                etQuestion.setText(et);
-                etQuestion.setSelection(start+ss.length());
-                etQuestion.setFocusableInTouchMode(true);
-                etQuestion.setFocusable(true);
-                break;
-            case 2:
-                et = etAnswer.getText();
-                start = etAnswer.getSelectionStart();
-                et.insert(start,ss);
-                etAnswer.setText(et);
-                etAnswer.setSelection(start+ss.length());
-                etAnswer.setFocusableInTouchMode(true);
-                etAnswer.setFocusable(true);
-                break;
-        }
-    }
-
-    private SpannableString getBitmapMime(String path,String tagPath) {
-        SpannableString ss = new SpannableString(tagPath);//这里使用加了<img>标签的图片路径
-//        Log.e("AddActivity","ss1:"+ss.toString());
-
-        int width = ScreenUtils.getScreenWidth(SortActivity.this);
-        int height = ScreenUtils.getScreenHeight(SortActivity.this);
-
-//        Log.d("YYPT_IMG_SCREEN", "高度:"+height+",宽度:"+width);
-
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        Bitmap bitmap = BitmapFactory.decodeFile(path, options);
-//        Log.d("YYPT_IMG_IMG", "高度:"+bitmap.getHeight()+",宽度:"+bitmap.getWidth());
-        bitmap = ImageUtils.zoomImage(bitmap,(width-32)*0.9,bitmap.getHeight()/(bitmap.getWidth()/((width-32)*0.9)));
-
-        /*
-        //高:754，宽1008
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inSampleSize = 4;
-        Bitmap bitmap = BitmapFactory.decodeFile(path,options);
-        */
-        Log.d("YYPT_IMG_COMPRESS", "高度："+bitmap.getHeight()+",宽度:"+bitmap.getWidth());
-
-        ImageSpan imageSpan = new ImageSpan(this, bitmap);
-        ss.setSpan(imageSpan, 0, tagPath.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        Log.e(TAG,"ss2:"+ss.toString());
-        return ss;
-    }
+//    private void insertImg(String path){
+//        Log.e(TAG, "insertImg:" + path);
+//        String tagPath = "<img src=\""+path+"\"/>";//为图片路径加上<img>标签
+//        Bitmap bitmap = BitmapFactory.decodeFile(path);
+//        if(bitmap != null){
+//            SpannableString ss = getBitmapMime(path, tagPath);
+//            insertPhotoToEditText(ss);
+//            etQuestion.append("\n");
+//            Log.e(TAG, etQuestion.getText().toString());
+//
+//        }else{
+//            //Log.d("YYPT_Insert", "tagPath: "+tagPath);
+//            Toast.makeText(SortActivity.this,"插入失败，无读写存储权限，请到权限中心开启",Toast.LENGTH_LONG).show();
+//        }
+//    }
+//    //将图片插入到EditText中
+//    private void insertPhotoToEditText(SpannableString ss){
+//        Editable et;
+//        int start;
+//        switch (type) {
+//            case 1:
+//                et = etQuestion.getText();
+//                start = etQuestion.getSelectionStart();
+//                et.insert(start,ss);
+//                etQuestion.setText(et);
+//                etQuestion.setSelection(start+ss.length());
+//                etQuestion.setFocusableInTouchMode(true);
+//                etQuestion.setFocusable(true);
+//                break;
+//            case 2:
+//                et = etAnswer.getText();
+//                start = etAnswer.getSelectionStart();
+//                et.insert(start,ss);
+//                etAnswer.setText(et);
+//                etAnswer.setSelection(start+ss.length());
+//                etAnswer.setFocusableInTouchMode(true);
+//                etAnswer.setFocusable(true);
+//                break;
+//        }
+//    }
+//
+//    private SpannableString getBitmapMime(String path,String tagPath) {
+//        SpannableString ss = new SpannableString(tagPath);//这里使用加了<img>标签的图片路径
+////        Log.e("AddActivity","ss1:"+ss.toString());
+//
+//        int width = ScreenUtils.getScreenWidth(SortActivity.this);
+//        int height = ScreenUtils.getScreenHeight(SortActivity.this);
+//
+////        Log.d("YYPT_IMG_SCREEN", "高度:"+height+",宽度:"+width);
+//
+//        BitmapFactory.Options options = new BitmapFactory.Options();
+//        Bitmap bitmap = BitmapFactory.decodeFile(path, options);
+////        Log.d("YYPT_IMG_IMG", "高度:"+bitmap.getHeight()+",宽度:"+bitmap.getWidth());
+//        bitmap = ImageUtils.zoomImage(bitmap,(width-32)*0.9,bitmap.getHeight()/(bitmap.getWidth()/((width-32)*0.9)));
+//
+//        /*
+//        //高:754，宽1008
+//        BitmapFactory.Options options = new BitmapFactory.Options();
+//        options.inSampleSize = 4;
+//        Bitmap bitmap = BitmapFactory.decodeFile(path,options);
+//        */
+//        Log.d("YYPT_IMG_COMPRESS", "高度："+bitmap.getHeight()+",宽度:"+bitmap.getWidth());
+//
+//        ImageSpan imageSpan = new ImageSpan(this, bitmap);
+//        ss.setSpan(imageSpan, 0, tagPath.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+//        Log.e(TAG,"ss2:"+ss.toString());
+//        return ss;
+//    }
 
     private void clearHandwriting(Uri mCutUri) {
         //Body of your click handler
@@ -593,7 +650,7 @@ public class SortActivity extends AppCompatActivity {
         startActivityForResult(intent, REQUEST_CROP); //设置裁剪参数显示图片至ImageView
     }
 
-    private void checkPermissions() {
+    public void checkPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // 检查是否有存储和拍照权限
             if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
@@ -618,4 +675,25 @@ public class SortActivity extends AppCompatActivity {
             }
         }
     }
+
+//    /**
+//     * 自定义license的文件路径和文件名称，以license文件方式初始化
+//     */
+//    private void initAccessTokenLicenseFile() {
+//        OCR.getInstance(getApplicationContext()).initAccessToken(new OnResultListener<AccessToken>() {
+//            @Override
+//            public void onResult(AccessToken accessToken) {
+//                String token = accessToken.getAccessToken();
+//                Log.d(TAG,token);
+//                hasGotToken = true;
+//            }
+//
+//            @Override
+//            public void onError(OCRError error) {
+//                error.printStackTrace();
+////                alertText("自定义文件路径licence方式获取token失败", error.getMessage());
+//            }
+//        }, "aip.license", getApplicationContext());
+//    }
+
 }

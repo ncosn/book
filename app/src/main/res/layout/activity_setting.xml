@@ -1,9 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bg"
     tools:context=".SettingActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <EditText
+        android:id="@+id/et_name"
+        android:layout_marginTop="100dp"
+        android:layout_marginHorizontal="30dp"
+        android:drawablePadding="10dp"
+        android:hint="请输入用户名"
+        android:maxLength="10"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/border_et"
+        android:drawableLeft="@drawable/ic_person_24"/>
+    <EditText
+        android:id="@+id/et_password"
+        android:layout_below="@+id/et_name"
+        android:layout_marginTop="10dp"
+        android:layout_marginHorizontal="30dp"
+        android:drawablePadding="10dp"
+        android:hint="请输入密码"
+        android:maxLength="10"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/border_et"
+        android:drawableLeft="@drawable/ic_lock_24"/>
+    <EditText
+        android:id="@+id/et_tel"
+        android:layout_below="@+id/et_password"
+        android:layout_marginTop="10dp"
+        android:layout_marginHorizontal="30dp"
+        android:drawablePadding="10dp"
+        android:hint="请输入联系方式"
+        android:maxLength="11"
+        android:inputType="number"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/border_et"
+        android:drawableLeft="@drawable/ic_phone_24"/>
+    <EditText
+        android:id="@+id/et_education"
+        android:layout_below="@+id/et_tel"
+        android:layout_marginTop="10dp"
+        android:layout_marginHorizontal="30dp"
+        android:drawablePadding="10dp"
+        android:hint="请输入学历"
+        android:maxLength="10"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/border_et"
+        android:drawableLeft="@drawable/ic_education_24"/>
+
+    <LinearLayout
+        android:layout_below="@+id/et_education"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:paddingHorizontal="20dp"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <Button
+            android:id="@+id/bt_back"
+            android:layout_width="130dp"
+            android:layout_height="50dp"
+            android:text="返 回"
+            android:background="@drawable/border_button_white"
+            android:textColor="@color/brown"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/bt_save"
+            android:layout_width="130dp"
+            android:layout_height="50dp"
+            android:text="保 存"
+            android:background="@drawable/border_button_brown"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:layout_marginStart="26dp" />
+    </LinearLayout>
+
+
+</RelativeLayout>

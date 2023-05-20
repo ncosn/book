@@ -21,4 +21,10 @@ public interface UserDao {
     @Query("SELECT * FROM USER")
     List<UserData> getAll();
 
+    @Query("SELECT * FROM USER WHERE ID = :id")
+    UserData getUser(int id);
+
+    @Update
+    void updateUser(UserData userData);
+
 }

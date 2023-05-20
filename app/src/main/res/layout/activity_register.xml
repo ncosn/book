@@ -24,6 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
+        android:maxLength="10"
         android:inputType="textPersonName"
         android:hint="请输入用户名" />
 
@@ -33,6 +34,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
+        android:maxLength="10"
         android:inputType="textPassword"
         android:hint="请输入密码"/>
 
@@ -50,6 +52,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
+        android:maxLength="11"
         android:hint="请输入手机号" />
 
     <LinearLayout

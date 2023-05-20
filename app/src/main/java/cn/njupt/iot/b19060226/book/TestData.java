@@ -21,6 +21,26 @@ public class TestData implements Serializable {
     @ColumnInfo(name = "subject")
     private String subject;
 
+    @ColumnInfo(name = "user_id")
+    private int user_id;
+
+    @ColumnInfo(name = "question")
+    private String question;
+
+    @ColumnInfo(name = "answer")
+    private String answer;
+
+    @ColumnInfo(name = "orc_question")
+    private String orcQuestion;
+
+    public String getOrcQuestion() {
+        return orcQuestion;
+    }
+
+    public void setOrcQuestion(String orcQuestion) {
+        this.orcQuestion = orcQuestion;
+    }
+
     public int getUser_id() {
         return user_id;
     }
@@ -28,9 +48,6 @@ public class TestData implements Serializable {
     public void setUser_id(int user_id) {
         this.user_id = user_id;
     }
-
-    @ColumnInfo(name = "user_id")
-    private int user_id;
 
     public int getID() {
         return ID;
@@ -79,12 +96,6 @@ public class TestData implements Serializable {
     public void setAnswer(String answer) {
         this.answer = answer;
     }
-
-    @ColumnInfo(name = "question")
-    private String question;
-
-    @ColumnInfo(name = "answer")
-    private String answer;
 
 
 }
