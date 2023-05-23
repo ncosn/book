@@ -1,16 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg"
+    android:clickable="true"
+    android:focusable="true"
     tools:context=".SortActivity">
+    <EditText
+        android:id="@+id/et_query"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:singleLine="true"
+        android:hint="请输入关键词"
+        android:drawableStart="@drawable/ic_search_24"
+        android:drawablePadding="5dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="80dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@drawable/border_et_query"/>
+    <TextView
+        android:id="@+id/tv_query"
+        android:clickable="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="搜 索"
+        android:textColor="@color/brown"
+        android:textSize="15sp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintEnd_toEndOf="@id/et_query"
+        app:layout_constraintTop_toTopOf="@id/et_query"
+        app:layout_constraintBottom_toBottomOf="@id/et_query"/>
     <androidx.recyclerview.widget.RecyclerView
         android:layout_marginTop="10dp"
         android:id="@+id/recyclerview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/et_query"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         tools:listitem="@layout/list_row_main">
 
     </androidx.recyclerview.widget.RecyclerView>
@@ -19,11 +50,11 @@
         android:id="@+id/bt_add"
         android:layout_width="60dp"
         android:layout_height="60dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginEnd="40dp"
         android:layout_marginBottom="30dp"
         android:background="@drawable/ic_add"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
         />
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

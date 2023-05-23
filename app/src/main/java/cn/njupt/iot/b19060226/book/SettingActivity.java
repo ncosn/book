@@ -10,7 +10,7 @@ import android.widget.EditText;
 
 public class SettingActivity extends AppCompatActivity {
 
-    EditText etName, etPassword, etTel, etEducation;
+    EditText etName, etPassword, etTel, etEducation, etEmail;
     Button btBack, btSave;
     RoomDB database;
     public int userId;
@@ -32,6 +32,7 @@ public class SettingActivity extends AppCompatActivity {
         etTel = findViewById(R.id.et_tel);
         etEducation = findViewById(R.id.et_education);
         etPassword = findViewById(R.id.et_password);
+        etEmail = findViewById(R.id.et_email);
         btBack = findViewById(R.id.bt_back);
         btSave = findViewById(R.id.bt_save);
         database = RoomDB.getInstance(SettingActivity.this);
@@ -41,6 +42,7 @@ public class SettingActivity extends AppCompatActivity {
         etPassword.setText(data.getPassword());
         etEducation.setText(data.getEducation());
         etTel.setText(data.getTel());
+        etEmail.setText(data.getEmail());
 
         btBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,6 +60,7 @@ public class SettingActivity extends AppCompatActivity {
                 data.setTel(etTel.getText().toString());
                 data.setEducation(etEducation.getText().toString());
                 data.setPassword(etPassword.getText().toString());
+                data.setEmail(etEmail.getText().toString());
                 database.userDao().updateUser(data);
                 finish();
             }

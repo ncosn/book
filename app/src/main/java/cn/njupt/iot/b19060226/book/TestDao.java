@@ -19,6 +19,15 @@ public interface TestDao {
     @Query("SELECT * FROM test WHERE user_id = :user_id ORDER BY time DESC,ID DESC")
     List<TestData> getAl(int user_id);
 
+    @Query("SELECT * FROM test WHERE user_id = :user_id AND (subject LIKE '%'||:words||'%' OR question LIKE '%'||:words||'%' OR orc_question LIKE '%'||:words||'%')")
+    List<TestData> queryWords(int user_id, String words);
+
+    @Query("SELECT COUNT(*) FROM test WHERE user_id = :user_id")
+    int getCount(int user_id);
+
+    @Query("select * from test WHERE user_id = :user_id order by random() limit 0,10")
+    List<TestData> getPaper(int user_id);
+
     @Update
     void update(TestData data);
 

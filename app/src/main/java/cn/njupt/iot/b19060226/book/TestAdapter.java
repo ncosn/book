@@ -48,7 +48,7 @@ public class TestAdapter extends RecyclerView.Adapter<TestAdapter.BaseViewHolder
     String orcText;
 
     //Add your own Registered API key
-    String mAPiKey = "K81936755388957";
+    String mAPiKey = "K80943135688957";
     boolean isOverlayRequired = true;
     String mLanguage = "chs";
     OCRAsyncTask.OCRCallback mIOCRCallBack;
@@ -163,25 +163,16 @@ public class TestAdapter extends RecyclerView.Adapter<TestAdapter.BaseViewHolder
                 SpannableString spannable = new SpannableString(input);
                 while(m.find()){
                     hasPic = true;
-                    //Log.d("YYPT_RGX", m.group());
-                    //这里s保存的是整个式子，即<img src="xxx"/>，start和end保存的是下标
+
                     String s = m.group();
-
-                    //path是去掉<img src=""/>的中间的图片路径
                     String path = s.replaceAll("<img src=\"|\"/>","").trim();
-                    //Log.d("YYPT_AFTER", path);
-
-                    //利用spannableString和ImageSpan来替换掉这些图片
                     int width = ScreenUtils.getScreenWidth(context);
                     int height = ScreenUtils.getScreenHeight(context);
-
                     try {
                         BitmapFactory.Options options = new BitmapFactory.Options();
                         Bitmap bitmap = BitmapFactory.decodeFile(path, options);
                         bitmap = ImageUtils.zoomImage(bitmap,(width-32)*0.9,bitmap.getHeight()/(bitmap.getWidth()/((width-32)*0.9)));
-
                         base64 = ImageUtils.bitmapToBase64(bitmap);
-
                         new OCRAsyncTask(context, mAPiKey, isOverlayRequired, mLanguage)
                                 .setCallback(new OCRAsyncTask.OCRCallback() {
                                     @Override
@@ -193,7 +184,6 @@ public class TestAdapter extends RecyclerView.Adapter<TestAdapter.BaseViewHolder
                                         }
                                     }
                                 }).execute(base64);
-
                     }catch (Exception e){
                         e.printStackTrace();
                     }

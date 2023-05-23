@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.baidu.ocr.sdk.OCR;
@@ -78,6 +79,8 @@ public class SortActivity extends AppCompatActivity {
     public TestAdapter testAdapter;
 
     Button btAdd;
+    EditText etQuery;
+    TextView tvQuery;
     private static String TAG = "SortActivity";
 
 
@@ -131,6 +134,8 @@ public class SortActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerview);
         btAdd = findViewById(R.id.bt_add);
+        etQuery = findViewById(R.id.et_query);
+        tvQuery = findViewById(R.id.tv_query);
 
         database = RoomDB.getInstance(this);
         dataList = database.testDao().getAl(userId);
@@ -189,90 +194,24 @@ public class SortActivity extends AppCompatActivity {
                     }
                 });
 
-//                int width = getResources().getDisplayMetrics().widthPixels;
-//                //Initialize height
-//                int height = getResources().getDisplayMetrics().heightPixels;
-//                //Set layout
-//                dialog.getWindow().setLayout(width,height);
-//                //Show dialog
-//                dialog.show();
-//
-//                Spinner spLevel = dialog.findViewById(R.id.sp_level);
-//                RadioGroup rgType = dialog.findViewById(R.id.rg_type);
-//                RadioButton rbQuesiton = dialog.findViewById(R.id.rb_question);
-//                RadioButton rbAnswer = dialog.findViewById(R.id.rb_answer);
-//                RelativeLayout rlQuestion, rlAnswer;
-//                rlQuestion = dialog.findViewById(R.id.rl_question);
-//                rlAnswer = dialog.findViewById(R.id.rl_answer);
-//                ImageView imClose = dialog.findViewById(R.id.im_close);
-//                EditText etSubject;
-//                etSubject = dialog.findViewById(R.id.et_subject);
-//
-//                ImageView ivGallery = dialog.findViewById(R.id.iv_gallery);
-//                ImageView ivCamera = dialog.findViewById(R.id.iv_camera);
-//
-//                ivGallery.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        checkPermissions();
-//                        if (hasPermission) {
-//                            openGallery();
-//                        }
-//                    }
-//                });
-//                ivCamera.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        checkPermissions();
-//                        if (hasPermission) {
-//                            takePhoto();
-//                        }
-//                    }
-//                });
-//
-//                rgType.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-//                    @Override
-//                    public void onCheckedChanged(RadioGroup radioGroup, int i) {
-//                        switch (i) {
-//                            case R.id.rb_question:
-//                                rlQuestion.setVisibility(View.VISIBLE);
-//                                type = 1;
-//                                break;
-//                            case R.id.rb_answer:
-//                                rlQuestion.setVisibility(View.GONE);
-//                                type = 2;
-//                                break;
-//                        }
-//                    }
-//                });
-//                imClose.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        dialog.dismiss();
-//                    }
-//                });
-
             }
         });
 
-//        //编辑框滑动事件
-//        etQuestion.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View view, MotionEvent motionEvent) {
-//                //触摸的是EditText并且当前EditText可以滚动则将事件交给EditText处理；否则将事件交由其父类处理
-//                if ((view.getId() == R.id.et_question)) {
-//                    //垂直方向上可以滚动
-//                    if(etQuestion.canScrollVertically(-1) || etQuestion.canScrollVertically(0)) {
-//                        //请求父控件不拦截滑动事件
-//                        view.getParent().requestDisallowInterceptTouchEvent(true);
-//                        if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-//                            view.getParent().requestDisallowInterceptTouchEvent(false);
-//                        }
-//                    }
-//                }
-//                return false;
-//            }
-//        });
+        tvQuery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String words = etQuery.getText().toString().trim();
+                if(!("".equals(words))) {
+                    dataList.clear();
+                    dataList.addAll(database.testDao().queryWords(userId, words));
+                    testAdapter.notifyDataSetChanged();
+                } else {
+                    dataList.clear();
+                    dataList.addAll(database.testDao().getAl(userId));
+                    testAdapter.notifyDataSetChanged();
+                }
+            }
+        });
 
     }
 
