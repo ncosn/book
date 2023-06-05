@@ -192,6 +192,13 @@ public class MyDialog extends Dialog {
         tvSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if ("".equals(etSubject.getText().toString())) {
+                    Toast.makeText(context,"请输入科目",Toast.LENGTH_SHORT).show();
+                    return;
+                } else if("".equals(etQuestion.getText().toString())) {
+                    Toast.makeText(context,"请输入题目",Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 Date date = new Date();
                 SimpleDateFormat dateFormat= new SimpleDateFormat(FORMAT);
                 String time = dateFormat.format(date);

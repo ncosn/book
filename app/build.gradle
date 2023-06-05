@@ -84,4 +84,8 @@ dependencies {
 
     compile fileTree(dir: 'libs',includes: ['*.jar'])
     compile(name:'ocrsdk',ext:'aar')
+
+    implementation 'org.jsoup:jsoup:1.14.3'
+
+
 }

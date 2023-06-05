@@ -27,7 +27,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:maxLength="10"
+        android:maxLength="20"
         android:inputType="textPersonName"
         android:hint="用户名" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -41,7 +41,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:maxLength="10"
+        android:maxLength="20"
         android:inputType="textPassword"
         android:hint="密码"/>
     </com.google.android.material.textfield.TextInputLayout>
