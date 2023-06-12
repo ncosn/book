@@ -30,10 +30,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.baidu.ocr.sdk.OCR;
-import com.baidu.ocr.sdk.OnResultListener;
-import com.baidu.ocr.sdk.exception.OCRError;
-import com.baidu.ocr.sdk.model.AccessToken;
+//import com.baidu.ocr.sdk.OCR;
+//import com.baidu.ocr.sdk.OnResultListener;
+//import com.baidu.ocr.sdk.exception.OCRError;
+//import com.baidu.ocr.sdk.model.AccessToken;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -482,6 +482,7 @@ public class SortActivity extends AppCompatActivity {
             conn.setRequestProperty("Content-Type", "application/octet-stream");
             conn.setRequestProperty("x-ti-app-id", ResourceDao.appId);
             conn.setRequestProperty("x-ti-secret-code", ResourceDao.secretCode);
+            conn.setConnectTimeout(10000);//超时
             conn.setDoOutput(true);
             conn.setDoInput(true);
             conn.setRequestMethod("POST"); // 设置请求方式

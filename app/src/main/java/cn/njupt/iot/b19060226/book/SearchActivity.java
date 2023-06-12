@@ -21,7 +21,7 @@ import java.util.List;
 public class SearchActivity extends AppCompatActivity {
     private static final String TAG = "SearchActivity:";
     String ocr,url,text="";
-    WebView webView;
+//    WebView webView;
     TextView tvSearch;
 
     @Override
@@ -33,8 +33,9 @@ public class SearchActivity extends AppCompatActivity {
         ocr = intent.getStringExtra("ocr");
 
         tvSearch = findViewById(R.id.tv_search);
-        webView = findViewById(R.id.webView);
-        webView.loadUrl(url);
+//        webView = findViewById(R.id.webView);
+//        webView.setWebViewClient(new WebViewClient());
+//        webView.loadUrl(url);
 
         try {
             Thread thread = new Thread(new Runnable() {
@@ -49,6 +50,9 @@ public class SearchActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        Intent intentBrowser = new Intent(SearchActivity.this,Browser.class);
+        intentBrowser.putExtra("url",url);
+        startActivity(intentBrowser);
     }
 
     public void init() {

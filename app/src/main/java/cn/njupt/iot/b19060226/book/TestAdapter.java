@@ -196,7 +196,8 @@ public class TestAdapter extends RecyclerView.Adapter<TestAdapter.BaseViewHolder
                                     }
                                 });
                         task.execute(base64);
-                        task.get(3000, TimeUnit.MILLISECONDS);
+                        // 等待 AsyncTask 执行完毕
+                        task.get();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -335,6 +336,29 @@ public class TestAdapter extends RecyclerView.Adapter<TestAdapter.BaseViewHolder
         if (result.length()>20) {
             result = result.substring(0,20);
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         String webUrl = "https://www.asklib.com/s/" + result;
         Log.d(TAG, "getSearch: webUrl:"+webUrl);
 //        String xpathAddress = "/html/body/div[5]/div[2]/div[1]/div[1]/div[2]/div/a";

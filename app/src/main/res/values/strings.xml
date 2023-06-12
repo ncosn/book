@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">book</string>
+    <string name="app_name">智能错题本</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>

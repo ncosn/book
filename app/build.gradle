@@ -82,8 +82,8 @@ dependencies {
     })
     androidTestImplementation "androidx.test.ext:junit:$rootProject.androidxJunitVersion"
 
-    compile fileTree(dir: 'libs',includes: ['*.jar'])
-    compile(name:'ocrsdk',ext:'aar')
+//    compile fileTree(dir: 'libs',includes: ['*.jar'])
+//    compile(name:'ocrsdk',ext:'aar')
 
     implementation 'org.jsoup:jsoup:1.14.3'
 
